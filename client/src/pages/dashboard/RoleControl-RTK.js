@@ -41,7 +41,7 @@ function RoleControl() {
   // RTK Permission API
   const getPerQuery = useGetPerQuery({ refetchOnMountOrArgChange: true });
   const [addPer, addPerMutation] = useAddPerMutation();
-  const [deletePer] = useDeletePerMutation();
+  const [deletePer, deletePerMutation] = useDeletePerMutation();
   const [updatePer] = useUpdatePerMutation();
   const [saveAllPer] = useSaveAllPerMutation();
 
@@ -92,6 +92,7 @@ function RoleControl() {
     } else {
       // Using RTK Query
       await addRole(newRole);
+
       getRoleQuery.refetch();
       setSelectedRole(addRoleMutation.data);
       toast.success('Successfully Added Role!');
@@ -99,18 +100,17 @@ function RoleControl() {
     }
   };
 
-  // Add new permission to current role => RTK
+  // Add new permission to <list></list> => RTK
   const handleAddNewPer = async () => {
     if (newPer.trim() === '') {
       toast.warning('This filed id required!');
       return;
     }
     try {
-      await addPer(newPer);
+      const res = await addPer(newPer);
+      console.log(res);
 
       getPerQuery.refetch();
-      setPerDatas(getPerQuery.data);
-      setRoleID(addPerMutation.data?.id);
       toast.success('Successfully Added Permission!');
       setShowAddPer(false);
     } catch (err) {
@@ -122,9 +122,11 @@ function RoleControl() {
   const handleDeleteRole = async () => {
     try {
       await deleteRoleByID(roleID);
-      toast.success('Deleted Role!');
+
       getRoleQuery.refetch();
+      getPerQuery.refetch();
       setDeleteRole(false);
+      toast.success('Deleted Role!');
     } catch (err) {
       console.log(err);
     }
@@ -166,6 +168,7 @@ function RoleControl() {
       });
 
       getRoleQuery.refetch();
+      // getPerQuery.refetch();
       toast.success('Successfully Save Permission!');
     } catch (error) {
       console.log(error);
@@ -235,6 +238,7 @@ function RoleControl() {
     }
     if (addRoleMutation.isSuccess === true) {
       setSelectedRole(addRoleMutation.data);
+      setRoleID(addRoleMutation.data.id);
     }
   }, [
     getRoleQuery.isSuccess,
