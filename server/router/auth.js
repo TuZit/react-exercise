@@ -80,7 +80,7 @@ router.post('/login', async (req, res) => {
           const accessToken = jwt.sign(
             { userID: existingUser._id },
             process.env.ACCESS_TOKEN,
-            { expiresIn: '60s' }
+            { expiresIn: '120s' }
           );
           res.json({
             success: true,

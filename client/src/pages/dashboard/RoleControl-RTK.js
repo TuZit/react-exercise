@@ -14,21 +14,20 @@ import ReactLoading from 'react-loading';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
-// import roleService from '../services/role.service.js';
 import PerItem from './PerItem.jsx';
-import { logout } from '../store/authSlice.js';
 import {
   useGetRoleQuery,
   useAddRoleMutation,
   useDeleteRoleByIDMutation,
   useSaveAllPerMutation,
-} from '../services/RTKQuery/roleApi.js';
+} from '../../services/RTKQuery/roleApi.js';
 import {
   useGetPerQuery,
   useAddPerMutation,
   useUpdatePerMutation,
   useDeletePerMutation,
-} from '../services/RTKQuery/perApi.js';
+} from '../../services/RTKQuery/perApi.js';
+import { logout } from '../../store/authSlice.js';
 
 function RoleControl() {
   const dispatch = useDispatch();
@@ -91,14 +90,6 @@ function RoleControl() {
       toast.warning('Role Name Already Exists!');
       return;
     } else {
-      // roleService.createRole(
-      //   newRole,
-      //   toast,
-      //   setRoleData,
-      //   setSelectedRole,
-      //   getPerQuery.refetch
-      // );
-
       // Using RTK Query
       await addRole(newRole);
       getRoleQuery.refetch();
@@ -114,7 +105,6 @@ function RoleControl() {
       toast.warning('This filed id required!');
       return;
     }
-    // roleService.createPer(newPer, toast, setPerDatas, setRoleID);
     try {
       await addPer(newPer);
 
@@ -130,7 +120,6 @@ function RoleControl() {
 
   // Delete Role func => RTK
   const handleDeleteRole = async () => {
-    // roleService.deleteRoler(roleID, toast, setRoleData);
     try {
       await deleteRoleByID(roleID);
       toast.success('Deleted Role!');
@@ -143,7 +132,6 @@ function RoleControl() {
 
   // Delete a Permission => RTK
   const handleDeletePermission = async () => {
-    // roleService.deletePermission(perID, toast, setPerDatas);
     try {
       await deletePer(perID);
 
@@ -158,13 +146,12 @@ function RoleControl() {
 
   // Modify Permission Name => RTK
   const handleModifyPerName = async () => {
-    // roleService.modifyPerName(perID, modidyPer, toast, setPerDatas);
     try {
       await updatePer({ id: perID, name: modidyPer });
 
       getPerQuery.refetch();
       setShowUpdatePer(false);
-      // toast.success('Modified Permission');
+      toast.success('Modified Permission');
     } catch (error) {
       console.log(error);
     }
@@ -172,13 +159,6 @@ function RoleControl() {
 
   // Save Permission
   const handleSavePer = async () => {
-    // roleService.savePerList(
-    //   roleID,
-    //   selectedRole?.perIDList,
-    //   toast,
-    //   setPerDatas,
-    //   setRoleData
-    // );
     try {
       await saveAllPer({
         id: roleID,
@@ -241,10 +221,6 @@ function RoleControl() {
 
   // Get all roles, permissions datas when mount
   useEffect(() => {
-    // Thay thế 2 cái service này bởi RTK Query trong useEffect cuối
-    // roleService.getRole(setRoleData);
-    // roleService.getPers(setPerDatas);
-
     getPerQuery.refetch();
     getRoleQuery.refetch();
   }, [roleID]);
@@ -316,6 +292,12 @@ function RoleControl() {
               </Nav>
 
               <ButtonGroup>
+                <Button
+                  variant='outline-success'
+                  onClick={() => navigate('/axios')}
+                >
+                  Use Axios
+                </Button>
                 <Button
                   variant='outline-success'
                   onClick={() => setShowAddRole(true)}

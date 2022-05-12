@@ -26,20 +26,14 @@ const getPers = async (setPerDatas) => {
 };
 
 // Add New Role func
-const createRole = async (
-  role,
-  toast,
-  setRoleData,
-  setSelectedRole,
-  refetch
-) => {
+const createRole = async (role, toast, setRoleData, setSelectedRole) => {
   try {
     const res = await axios.post(ROLE_API + 'roles', {
       name: role,
     });
     setSelectedRole(res.data);
     getRole(setRoleData);
-    refetch();
+
     toast.success('Successfully Added Role!');
   } catch (err) {
     console.log(err);
@@ -60,13 +54,20 @@ const createRole = async (
 };
 
 // Add new permission to current role
-const createPer = async (name, toast, setPerDatas, setRoleID) => {
+const createPer = async (
+  name,
+  toast,
+  setPerDatas,
+  setRoleID,
+  setShowAddPer
+) => {
   try {
     const res = await axios.post(ROLE_API + 'permission', {
       name: name,
     });
     setRoleID(res.data.id);
     getPers(setPerDatas);
+    setShowAddPer(false);
     toast.success('Successfully Added Permission!');
   } catch (err) {
     console.log(err);
@@ -87,11 +88,12 @@ const createPer = async (name, toast, setPerDatas, setRoleID) => {
 };
 
 // Delete Role func
-const deleteRoler = (id, toast, setRoleData) => {
+const deleteRoler = (id, toast, setRoleData, setDeleteRole) => {
   return axios
     .delete(`${ROLE_API}roles/${id}`)
     .then(() => {
       getRole(setRoleData);
+      setDeleteRole(true);
       toast.success('Deleted Role!');
     })
     .catch((err) => {
@@ -101,11 +103,12 @@ const deleteRoler = (id, toast, setRoleData) => {
 };
 
 // Delete a Permission
-const deletePermission = (id, toast, setPerDatas) => {
+const deletePermission = (id, toast, setPerDatas, setShowDelete) => {
   return axios
     .delete(`${ROLE_API}permission/${id}`)
     .then(() => {
       getPers(setPerDatas);
+      setShowDelete(false);
       toast.success('Deleted Permission!');
     })
     .catch((err) => {
@@ -115,12 +118,19 @@ const deletePermission = (id, toast, setPerDatas) => {
 };
 
 // Modify Permission Name
-const modifyPerName = async (id, name, toast, setPerDatas) => {
+const modifyPerName = async (
+  id,
+  name,
+  toast,
+  setPerDatas,
+  setShowUpdatePer
+) => {
   try {
     await axios.put(`${ROLE_API}permission/${id}`, {
       name: name,
     });
     getPers(setPerDatas);
+    setShowUpdatePer(false);
     toast.success('Modified Permission');
   } catch (err) {
     console.log(err);
