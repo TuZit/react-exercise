@@ -122,8 +122,7 @@ function RoleControl() {
       try {
         await deleteRoleByID(roleID);
 
-        getRoleQuery.refetch();
-        getPerQuery.refetch();
+        setSelectedRole(undefined);
         setDeleteRole(false);
         toast.success('Deleted Role!');
       } catch (err) {
@@ -172,8 +171,6 @@ function RoleControl() {
         id: roleID,
         perIDList: selectedRole?.perIDList,
       });
-
-      console.log('res:', res.data);
 
       setSelectedRole({
         ...selectedRole,
@@ -345,22 +342,22 @@ function RoleControl() {
 
       {/* Permission Boy */}
       <Container className='my-4 permission-body' disabled={true}>
-        <Button
-          disabled={roleName === 'Choose your Role'}
-          onClick={() => setShowAddPer(true)}
-        >
-          Add Permission
-        </Button>
-
-        <p className='mt-3'>PERMISSION LISTS:</p>
         {selectedRole === undefined ? (
           <div>
-            <p style={{ color: 'red' }}>
-              Warning: Please select your Role to check Permission
+            <p className='role-control-warning__empty'>
+              Warning: Please select or add your Role to check your Permission
             </p>
           </div>
         ) : (
           <>
+            <Button
+              disabled={roleName === 'Choose your Role'}
+              onClick={() => setShowAddPer(true)}
+            >
+              Add Permission
+            </Button>
+
+            <p className='mt-3'>PERMISSION LISTS:</p>
             <Form className='my-3 per-form'>
               {perDatas && isAuthorization === true ? (
                 perDatas.map((per, i) => {
