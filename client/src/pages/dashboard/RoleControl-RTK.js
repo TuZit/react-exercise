@@ -34,12 +34,12 @@ function RoleControl() {
   const navigate = useNavigate();
 
   // RTK role API
-  const getRoleQuery = useGetRoleQuery({ refetchOnMountOrArgChange: true });
+  const getRoleQuery = useGetRoleQuery();
   const [addRole, addRoleMutation] = useAddRoleMutation();
   const [deleteRoleByID] = useDeleteRoleByIDMutation();
 
   // RTK Permission API
-  const getPerQuery = useGetPerQuery({ refetchOnMountOrArgChange: true });
+  const getPerQuery = useGetPerQuery();
   const [addPer, addPerMutation] = useAddPerMutation();
   const [deletePer, deletePerMutation] = useDeletePerMutation();
   const [updatePer] = useUpdatePerMutation();
@@ -93,8 +93,7 @@ function RoleControl() {
       // Using RTK Query
       await addRole(newRole);
 
-      getRoleQuery.refetch();
-      setSelectedRole(addRoleMutation.data);
+      // getRoleQuery.refetch();
       toast.success('Successfully Added Role!');
       setShowAddRole(false);
     }
@@ -110,8 +109,7 @@ function RoleControl() {
       const res = await addPer(newPer);
       console.log(res);
 
-      getPerQuery.refetch();
-      toast.success('Successfully Added Permission!');
+      toast.success('Successsfully Added Permission!');
       setShowAddPer(false);
     } catch (err) {
       console.log(err);
@@ -120,15 +118,21 @@ function RoleControl() {
 
   // Delete Role func => RTK
   const handleDeleteRole = async () => {
-    try {
-      await deleteRoleByID(roleID);
+    if (roleID) {
+      try {
+        await deleteRoleByID(roleID);
 
-      getRoleQuery.refetch();
-      getPerQuery.refetch();
+        getRoleQuery.refetch();
+        getPerQuery.refetch();
+        setDeleteRole(false);
+        toast.success('Deleted Role!');
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
       setDeleteRole(false);
-      toast.success('Deleted Role!');
-    } catch (err) {
-      console.log(err);
+      toast.error('Please select Role!');
+      return;
     }
   };
 
@@ -138,6 +142,7 @@ function RoleControl() {
       await deletePer(perID);
 
       getPerQuery.refetch();
+      getRoleQuery.refetch();
       setShowDelete(false);
       toast.success('Deleted Role!');
     } catch (error) {
@@ -160,15 +165,23 @@ function RoleControl() {
   };
 
   // Save Permission
-  const handleSavePer = async () => {
+  const handleSavePer = async (e) => {
+    e.preventDefault();
     try {
-      await saveAllPer({
+      const res = await saveAllPer({
         id: roleID,
         perIDList: selectedRole?.perIDList,
       });
 
-      getRoleQuery.refetch();
+      console.log('res:', res.data);
+
+      setSelectedRole({
+        ...selectedRole,
+        perIDList: res.data.perIDList,
+      });
+
       // getPerQuery.refetch();
+      getRoleQuery.refetch();
       toast.success('Successfully Save Permission!');
     } catch (error) {
       console.log(error);
@@ -228,6 +241,14 @@ function RoleControl() {
     getRoleQuery.refetch();
   }, [roleID]);
 
+  useEffect(() => {
+    // tách ra useEffect riêng ko thì bị clear checked list :)
+    if (addRoleMutation.isSuccess === true) {
+      setSelectedRole(addRoleMutation.data);
+      setRoleID(addRoleMutation.data.id);
+    }
+  }, [addRoleMutation.data, addRoleMutation.isSuccess]);
+
   // RTK Role Management
   useEffect(() => {
     if (getRoleQuery.isSuccess === true) {
@@ -236,21 +257,14 @@ function RoleControl() {
     if (getPerQuery.isSuccess === true) {
       setPerDatas(getPerQuery.data);
     }
-    if (addRoleMutation.isSuccess === true) {
-      setSelectedRole(addRoleMutation.data);
-      setRoleID(addRoleMutation.data.id);
-    }
   }, [
     getRoleQuery.isSuccess,
     getRoleQuery.data,
     getPerQuery.data,
     getPerQuery.isSuccess,
-    addRoleMutation.isSuccess,
-    addRoleMutation.data,
   ]);
 
   // RTK Permission Management
-  useEffect(() => {}, []);
 
   return (
     <div className='role-container'>
@@ -339,35 +353,45 @@ function RoleControl() {
         </Button>
 
         <p className='mt-3'>PERMISSION LISTS:</p>
-        <Form className='my-3'>
-          {perDatas && isAuthorization === true ? (
-            perDatas.map((per, i) => {
-              return (
-                <PerItem
-                  key={i}
-                  per={per}
-                  setShowDelete={setShowDelete}
-                  setShowUpdatePer={setShowUpdatePer}
-                  setPerID={setPerID}
-                  selectedRole={selectedRole}
-                  checkPermission={checkPermission}
-                  roleID={roleID}
-                  // getPers={roleService.getPers}
-                  setSelectedRole={setSelectedRole}
-                />
-              );
-            })
-          ) : (
-            <>
-              <h3>Data is Fetching..., Please Login again to get data</h3>
-              <ReactLoading type='spin' color='#000' />
-            </>
-          )}
+        {selectedRole === undefined ? (
+          <div>
+            <p style={{ color: 'red' }}>
+              Warning: Please select your Role to check Permission
+            </p>
+          </div>
+        ) : (
+          <>
+            <Form className='my-3 per-form'>
+              {perDatas && isAuthorization === true ? (
+                perDatas.map((per, i) => {
+                  return (
+                    <PerItem
+                      key={i}
+                      per={per}
+                      setShowDelete={setShowDelete}
+                      setShowUpdatePer={setShowUpdatePer}
+                      setPerID={setPerID}
+                      selectedRole={selectedRole}
+                      checkPermission={checkPermission}
+                      roleID={roleID}
+                      // getPers={roleService.getPers}
+                      setSelectedRole={setSelectedRole}
+                    />
+                  );
+                })
+              ) : (
+                <>
+                  <h3>Data is Fetching..., Please Login again to get data</h3>
+                  <ReactLoading type='spin' color='#000' />
+                </>
+              )}
 
-          <Button className='mt-3' onClick={handleSavePer}>
-            SAVE
-          </Button>
-        </Form>
+              <Button className='mt-3' onClick={handleSavePer}>
+                SAVE
+              </Button>
+            </Form>
+          </>
+        )}
       </Container>
 
       {/* Modal */}

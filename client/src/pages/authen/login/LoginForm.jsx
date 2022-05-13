@@ -17,20 +17,21 @@ function LoginForm() {
   //  Login using RTK Query
   const [loginUser, { data, isLoading, isSuccess, isError, error }] =
     useLoginUserMutation();
-  useEffect(() => {
-    if (isSuccess) {
-      localStorage.setItem('login', JSON.stringify(data));
-      navigate('/');
-    }
 
-    if (isError) {
-      console.log(error);
-    }
-  }, [data, isSuccess]);
+  // useEffect(() => {
+  //   if (isSuccess) {
+  //     localStorage.setItem('login', JSON.stringify(data));
+  //     navigate('/');
+  //   }
 
-  if (isLoading) {
-    return <h2>Loading...</h2>;
-  }
+  //   if (isError) {
+  //     console.log(error);
+  //   }
+  // }, [data, isSuccess]);
+
+  // if (isLoading) {
+  //   return <h2>Loading...</h2>;
+  // }
 
   // Submit func
   const handleSubmit = (e) => {
