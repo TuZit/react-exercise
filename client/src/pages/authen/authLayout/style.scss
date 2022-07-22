@@ -1,0 +1,31 @@
+.auth-layout {
+  height: 100vh;
+  display: flex;
+  .layout-left,
+  .layout-right {
+    flex: 1;
+  }
+  .layout-left {
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  .layout-right {
+    background-color: white;
+    .form-input {
+      padding: 20px 15px;
+      overflow: auto;
+      max-width: 475px;
+      width: 100%;
+      margin: auto;
+      font-size: 13px;
+    }
+  }
+}
+@media (max-width: 991.98px){
+  .layout-left{
+    display: none;
+  }
+}
